@@ -56,7 +56,17 @@ def register(worktree_path: str, branch: str, repo: str, pr: str = "", descripti
         worktree_path = default_worktree_path(repo, branch)
         print(f"Auto-derived worktree path: {worktree_path}")
     reg = load_registry()
-    reg[worktree_path] = {"branch": branch, "repo": repo, "pr": pr, "description": description}
+    existing = reg.get(worktree_path, {})
+    # prs is always a list; append new PR URL if provided and not already present
+    prs = existing.get("prs", [])
+    if pr and pr not in prs:
+        prs.append(pr)
+    reg[worktree_path] = {
+        "branch": branch,
+        "repo": repo,
+        "prs": prs,
+        "description": description or existing.get("description", ""),
+    }
     save_registry(reg)
     print(f"Registered: {worktree_path} → branch '{branch}' in {repo}")
 
@@ -67,7 +77,8 @@ def list_worktrees():
         print("No worktrees registered.")
         return
     for path, info in reg.items():
-        print(f"  {path}  branch={info['branch']}  repo={info['repo']}")
+        prs = ", ".join(info.get("prs", [])) or "—"
+        print(f"  {path}\n    branch={info['branch']}  repo={info['repo']}\n    prs={prs}\n    desc={info.get('description','')}")
 
 
 def load_log() -> list:
@@ -89,8 +100,8 @@ def show_log(limit: int = 20):
         print("No completed worktrees logged.")
         return
     for entry in reversed(log[-limit:]):
-        pr = entry.get("pr", "—")
-        print(f"  [{entry['pruned_at'][:10]}] {entry['repo']}  branch={entry['branch']}  pr={pr}  desc={entry.get('description', '')}")
+        prs = ", ".join(entry.get("prs", [])) or "—"
+        print(f"  [{entry['pruned_at'][:10]}] {entry['repo']}  branch={entry['branch']}  prs={prs}  desc={entry.get('description', '')}")
 
 
 def remote_branch_exists(repo: str, branch: str) -> bool:
@@ -124,7 +135,7 @@ def prune(dry_run: bool = False):
                 "repo": repo,
                 "branch": branch,
                 "worktree": wt_path,
-                "pr": info.get("pr", ""),
+                "prs": info.get("prs", []),
                 "description": info.get("description", ""),
             })
             print(f"         Removed worktree and local branch '{branch}'")

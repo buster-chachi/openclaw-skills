@@ -62,6 +62,41 @@ python3 $SCRIPT log [--limit 20]
 
 ## Data Files
 
+## JSON Format
+
+**`~/.openclaw/worktrees.json`** — active worktrees (keyed by path):
+```json
+{
+  "/Users/buster/Projects/mm_contact_data-add-html-parser": {
+    "branch": "add-html-parser",
+    "repo": "/Users/buster/Projects/mm_contact_data",
+    "prs": [
+      "https://github.com/org/repo/pull/42",
+      "https://github.com/org/repo/pull/47"
+    ],
+    "description": "Add HTML response parser to scrape engine"
+  }
+}
+```
+
+**`~/.openclaw/worktree-log.json`** — append-only history after pruning:
+```json
+[
+  {
+    "pruned_at": "2026-03-18T21:00:00+00:00",
+    "repo": "/Users/buster/Projects/mm_contact_data",
+    "branch": "add-html-parser",
+    "worktree": "/Users/buster/Projects/mm_contact_data-add-html-parser",
+    "prs": ["https://github.com/org/repo/pull/42"],
+    "description": "Add HTML response parser to scrape engine"
+  }
+]
+```
+
+`prs` is always a list — calling `register --pr <url>` appends to it, so multiple review cycles are captured without overwriting history.
+
+## Data Files
+
 | File | Purpose |
 |------|---------|
 | `~/.openclaw/worktrees.json` | Active registry |
