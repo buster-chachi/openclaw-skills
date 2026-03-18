@@ -18,14 +18,23 @@ All operations go through `scripts/worktree_manager.py`.
 ```bash
 # Register a worktree after creating it
 python3 ~/.openclaw/workspace/skills/git-worktree-manager/scripts/worktree_manager.py \
-  register <worktree-path> <branch> --repo <repo-root>
+  register <worktree-path> <branch> --repo <repo-root> \
+  [--pr <pr-url>] [--description "short task description"]
 
-# List all registered worktrees
+# List active registered worktrees
 python3 ~/.openclaw/workspace/skills/git-worktree-manager/scripts/worktree_manager.py list
 
-# Prune worktrees whose remote branch no longer exists
+# Prune worktrees whose remote branch no longer exists (logs completed tasks)
 python3 ~/.openclaw/workspace/skills/git-worktree-manager/scripts/worktree_manager.py prune [--dry-run]
+
+# Show history of completed/pruned worktrees
+python3 ~/.openclaw/workspace/skills/git-worktree-manager/scripts/worktree_manager.py log [--limit 20]
 ```
+
+## Storage
+
+- Active registry: `~/.openclaw/worktrees.json`
+- Completed task log: `~/.openclaw/worktree-log.json` — permanent record of every pruned worktree with date, repo, branch, PR URL, and description
 
 ## Agent Task Lifecycle
 
@@ -39,7 +48,8 @@ cd $REPO
 git fetch origin
 git worktree add $WORKTREE -b $BRANCH
 python3 ~/.openclaw/workspace/skills/git-worktree-manager/scripts/worktree_manager.py \
-  register $WORKTREE $BRANCH --repo $REPO
+  register $WORKTREE $BRANCH --repo $REPO \
+  --description "brief description of task"
 ```
 
 ### 2. Agent works in the worktree directory
