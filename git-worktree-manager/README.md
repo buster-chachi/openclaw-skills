@@ -22,25 +22,33 @@ git clone --depth 1 --filter=blob:none --sparse \
 
 ## Configuration
 
-Create `~/.openclaw/.env` to override defaults:
+`~/.openclaw/.env` controls defaults (all optional):
 
 ```env
-# Where agent worktrees are created (default: ~/Projects)
+# Default root for auto-derived worktree paths (default: ~/Projects)
+# Only used when no explicit path is passed to `register`
 WORKTREE_ROOT=/Users/you/Projects
 
 # OpenClaw data dir for registry/log files (default: ~/.openclaw)
 OPENCLAW_DIR=/Users/you/.openclaw
 ```
 
+Worktrees can live **anywhere on the filesystem** — the path is just recorded in the JSON as-is. `WORKTREE_ROOT` is only a convenience default.
+
 ## Usage
 
 ```bash
 SCRIPT=~/.openclaw/workspace/skills/git-worktree-manager/scripts/worktree_manager.py
 
-# Create worktree and register (path auto-derived from WORKTREE_ROOT if omitted)
-git -C ~/Projects/my-repo worktree add ../my-repo-my-branch -b my-branch
-python3 $SCRIPT register --repo ~/Projects/my-repo my-branch \
+# Explicit path — works anywhere
+git -C ~/Projects/my-repo worktree add /any/path/on/disk -b my-branch
+python3 $SCRIPT register /any/path/on/disk my-branch --repo ~/Projects/my-repo \
   --description "what this task does" [--pr https://github.com/...]
+
+# Omit path — auto-derived as <WORKTREE_ROOT>/<repo>-<branch>
+git -C ~/Projects/my-repo worktree add ~/Projects/my-repo-my-branch -b my-branch
+python3 $SCRIPT register my-branch --repo ~/Projects/my-repo \
+  --description "what this task does"
 
 # List active worktrees
 python3 $SCRIPT list
