@@ -11,7 +11,13 @@ Manages git worktrees tied to agent feature branches. Handles the full lifecycle
 ## Install
 
 ```bash
-cp -r git-worktree-manager ~/.openclaw/workspace/skills/
+# One-liner from GitHub
+git clone --depth 1 --filter=blob:none --sparse \
+  https://github.com/buster-chachi/openclaw-skills.git /tmp/openclaw-skills-tmp && \
+  cd /tmp/openclaw-skills-tmp && \
+  git sparse-checkout set git-worktree-manager && \
+  cp -r git-worktree-manager ~/.openclaw/workspace/skills/ && \
+  cd - && rm -rf /tmp/openclaw-skills-tmp
 ```
 
 ## Configuration

@@ -5,11 +5,17 @@ A collection of agent skills for [OpenClaw](https://openclaw.ai). Each skill ext
 ## Installing a Skill
 
 ```bash
+# Install a single skill directly from GitHub (no full clone needed)
+SKILL=git-worktree-manager
+git clone --depth 1 --filter=blob:none --sparse \
+  https://github.com/buster-chachi/openclaw-skills.git /tmp/openclaw-skills-tmp && \
+  cd /tmp/openclaw-skills-tmp && \
+  git sparse-checkout set $SKILL && \
+  cp -r $SKILL ~/.openclaw/workspace/skills/ && \
+  cd - && rm -rf /tmp/openclaw-skills-tmp
+
 # Via ClawHub (if published)
 clawhub install <skill-name>
-
-# Manually
-cp -r <skill-folder> ~/.openclaw/workspace/skills/
 ```
 
 ## Skills
