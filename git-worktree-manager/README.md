@@ -2,6 +2,14 @@
 
 Manages git worktrees tied to agent feature branches. Handles the full lifecycle: create → register → prune when the remote branch is deleted. Keeps a permanent log of completed tasks across all projects.
 
+## Compatibility
+
+| OS | Status |
+|----|--------|
+| macOS | ✅ Fully supported |
+| Linux | ✅ Fully supported |
+| Windows | ⚠️ Script works but install one-liner requires bash; OpenClaw itself is macOS/Linux only |
+
 ## Prerequisites
 
 - git ≥ 2.5
