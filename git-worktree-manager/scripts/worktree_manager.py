@@ -14,17 +14,17 @@ import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-# Load ~/.openclaw/.env if present (overrides defaults below)
-_env_file = Path.home() / ".openclaw" / ".env"
-if _env_file.exists():
-    try:
-        from dotenv import load_dotenv
-        load_dotenv(_env_file)
-    except ImportError:
-        pass  # dotenv optional; fall back to os.environ only
+# Respect OpenClaw's native env vars for state directory
+# Priority: OPENCLAW_STATE_DIR > OPENCLAW_HOME > ~/.openclaw
+OPENCLAW_DIR = Path(
+    os.environ.get("OPENCLAW_STATE_DIR")
+    or os.environ.get("OPENCLAW_HOME")
+    or str(Path.home() / ".openclaw")
+)
 
-OPENCLAW_DIR = Path(os.environ.get("OPENCLAW_DIR", str(Path.home() / ".openclaw")))
+# WORKTREE_ROOT has no OpenClaw native equivalent — set in shell env or profile
 WORKTREE_ROOT = Path(os.environ.get("WORKTREE_ROOT", str(Path.home() / "Projects")))
+
 REGISTRY_PATH = OPENCLAW_DIR / "worktrees.json"
 LOG_PATH = OPENCLAW_DIR / "worktree-log.json"
 

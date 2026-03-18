@@ -14,7 +14,6 @@ Manages git worktrees tied to agent feature branches. Handles the full lifecycle
 
 - git ≥ 2.5
 - python3
-- `python-dotenv` (optional, for `.env` support): `pip3 install python-dotenv`
 
 ## Install
 
@@ -30,18 +29,15 @@ git clone --depth 1 --filter=blob:none --sparse \
 
 ## Configuration
 
-`~/.openclaw/.env` controls defaults (all optional):
+All configuration is via standard environment variables — no config file needed. Set these in your shell profile (`~/.bashrc`, `~/.zshrc`) or export them before running.
 
-```env
-# Default root for auto-derived worktree paths (default: ~/Projects)
-# Only used when no explicit path is passed to `register`
-WORKTREE_ROOT=/Users/you/Projects
+| Variable | Purpose | Default |
+|----------|---------|---------|
+| `OPENCLAW_STATE_DIR` | OpenClaw state directory (native OpenClaw var) | `~/.openclaw` |
+| `OPENCLAW_HOME` | Fallback if `OPENCLAW_STATE_DIR` not set (native OpenClaw var) | `~/.openclaw` |
+| `WORKTREE_ROOT` | Default root for auto-derived worktree paths | `~/Projects` |
 
-# OpenClaw data dir for registry/log files (default: ~/.openclaw)
-OPENCLAW_DIR=/Users/you/.openclaw
-```
-
-Worktrees can live **anywhere on the filesystem** — the path is just recorded in the JSON as-is. `WORKTREE_ROOT` is only a convenience default.
+`WORKTREE_ROOT` is only used when no explicit path is passed to `register`. Worktrees can live **anywhere on the filesystem** — the path is recorded in the JSON as-is.
 
 ## Usage
 
