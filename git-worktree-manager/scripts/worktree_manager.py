@@ -8,13 +8,25 @@ git-worktree-manager: Manage agent worktrees tied to branches.
 
 import argparse
 import json
+import os
 import subprocess
 import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
-REGISTRY_PATH = Path.home() / ".openclaw" / "worktrees.json"
-LOG_PATH = Path.home() / ".openclaw" / "worktree-log.json"
+# Load ~/.openclaw/.env if present (overrides defaults below)
+_env_file = Path.home() / ".openclaw" / ".env"
+if _env_file.exists():
+    try:
+        from dotenv import load_dotenv
+        load_dotenv(_env_file)
+    except ImportError:
+        pass  # dotenv optional; fall back to os.environ only
+
+OPENCLAW_DIR = Path(os.environ.get("OPENCLAW_DIR", str(Path.home() / ".openclaw")))
+WORKTREE_ROOT = Path(os.environ.get("WORKTREE_ROOT", str(Path.home() / "Projects")))
+REGISTRY_PATH = OPENCLAW_DIR / "worktrees.json"
+LOG_PATH = OPENCLAW_DIR / "worktree-log.json"
 
 
 def load_registry() -> dict:
@@ -32,7 +44,17 @@ def run(cmd: list[str], cwd=None, check=True) -> subprocess.CompletedProcess:
     return subprocess.run(cmd, capture_output=True, text=True, cwd=cwd, check=check)
 
 
+def default_worktree_path(repo: str, branch: str) -> str:
+    """Derive a worktree path: <WORKTREE_ROOT>/<repo-name>-<branch>"""
+    repo_name = Path(repo).resolve().name
+    safe_branch = branch.replace("/", "-")
+    return str(WORKTREE_ROOT / f"{repo_name}-{safe_branch}")
+
+
 def register(worktree_path: str, branch: str, repo: str, pr: str = "", description: str = ""):
+    if not worktree_path:
+        worktree_path = default_worktree_path(repo, branch)
+        print(f"Auto-derived worktree path: {worktree_path}")
     reg = load_registry()
     reg[worktree_path] = {"branch": branch, "repo": repo, "pr": pr, "description": description}
     save_registry(reg)
@@ -123,7 +145,7 @@ def main():
     sub = parser.add_subparsers(dest="cmd")
 
     reg_p = sub.add_parser("register", help="Register a worktree")
-    reg_p.add_argument("path", help="Worktree directory path")
+    reg_p.add_argument("path", nargs="?", default="", help="Worktree directory path (auto-derived from WORKTREE_ROOT if omitted)")
     reg_p.add_argument("branch", help="Branch name")
     reg_p.add_argument("--repo", default=".", help="Repo root (default: cwd)")
     reg_p.add_argument("--pr", default="", help="PR URL (optional)")
